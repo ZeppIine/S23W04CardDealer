@@ -2,12 +2,15 @@ package kr.ac.kumoh.ce.s20180147.s23w04carddealer
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.ContactsContract.CommonDataKinds.Im
 import android.util.Log
+import android.widget.ImageView
 import kr.ac.kumoh.ce.s20180147.s23w04carddealer.databinding.ActivityMainBinding
 import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
     private lateinit var main: ActivityMainBinding
+    private lateinit var iview: Array<ImageView?>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -17,17 +20,21 @@ class MainActivity : AppCompatActivity() {
         setContentView(main.root)
 
 //        main.card1.setImageResource(R.drawable.c_ace_of_spades2)
-        val c = Random.nextInt(52)
-        Log.i("Card!", "$c : ${getCardNumber(c)}")
+        val c = IntArray(5) {0}
+        for (i in 0..4) {
+            c[i] = Random.nextInt(52)
+//            Log.i("Card!", "$c : ${getCardNumber(c)}")
+        }
+        iview = arrayOf(main.card1, main.card2, main.card3, main.card4, main.card5)
 
-        val res = resources.getIdentifier(
-            getCardNumber(c),
-            "drawable",
-            packageName
-        )
-
-        main.card1.setImageResource(res)
+        iview.forEachIndexed { index, imageview->
+            imageview?.setImageResource(resources.getIdentifier(
+                getCardNumber(c[index]),
+                "drawable",
+                packageName))
+        }
     }
+
 
     private fun getCardNumber(c: Int): String {
         val shape = when (c / 13){
