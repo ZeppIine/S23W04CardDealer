@@ -5,12 +5,15 @@ import android.os.Bundle
 import android.provider.ContactsContract.CommonDataKinds.Im
 import android.util.Log
 import android.widget.ImageView
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import kr.ac.kumoh.ce.s20180147.s23w04carddealer.databinding.ActivityMainBinding
 import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
     private lateinit var main: ActivityMainBinding
     private lateinit var iview: Array<ImageView?>
+    private lateinit var model: CardDealerViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,22 +22,33 @@ class MainActivity : AppCompatActivity() {
         main = ActivityMainBinding.inflate(layoutInflater)
         setContentView(main.root)
 
-//        main.card1.setImageResource(R.drawable.c_ace_of_spades2)
-        val c = IntArray(5) {0}
-        for (i in 0..4) {
-            c[i] = Random.nextInt(52)
-//            Log.i("Card!", "$c : ${getCardNumber(c)}")
-        }
+        model = ViewModelProvider(this)[CardDealerViewModel::class.java]
+
         iview = arrayOf(main.card1, main.card2, main.card3, main.card4, main.card5)
 
+        model.cards.observe(this, Observer {
+            setCardNumber()
+        })
+
+        main.btn1.setOnClickListener{
+            model.shuffle()
+        }
+//        main.card1.setImageResource(R.drawable.c_ace_of_spades2)
+//        val c = IntArray(5) {0}
+//        for (i in 0..4) {
+//            c[i] = Random.nextInt(52)
+//            Log.i("Card!", "$c : ${getCardNumber(c)}")
+//        }
+    }
+
+    private fun setCardNumber() {
         iview.forEachIndexed { index, imageview->
             imageview?.setImageResource(resources.getIdentifier(
-                getCardNumber(c[index]),
+                getCardNumber(model.cards.value!![index]),
                 "drawable",
                 packageName))
         }
     }
-
 
     private fun getCardNumber(c: Int): String {
         val shape = when (c / 13){
@@ -60,6 +74,8 @@ class MainActivity : AppCompatActivity() {
             12 -> ""
             else -> "error"
         }//j, q, k 검증용
+
+        if (c == -1) return "c_red_joker"
 
         return "c_${number}_of_${shape}${case}"
     }
