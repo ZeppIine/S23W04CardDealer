@@ -5,14 +5,17 @@ import android.os.Bundle
 import android.provider.ContactsContract.CommonDataKinds.Im
 import android.util.Log
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import kr.ac.kumoh.ce.s20180147.s23w04carddealer.databinding.ActivityMainBinding
+import kotlin.math.log
 import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
     private lateinit var main: ActivityMainBinding
     private lateinit var iview: Array<ImageView?>
+    private lateinit var tview: TextView
     private lateinit var model: CardDealerViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,6 +35,7 @@ class MainActivity : AppCompatActivity() {
 
         main.btn1.setOnClickListener{
             model.shuffle()
+            setHandRankings()
         }
 //        main.card1.setImageResource(R.drawable.c_ace_of_spades2)
 //        val c = IntArray(5) {0}
@@ -57,7 +61,7 @@ class MainActivity : AppCompatActivity() {
             2 -> "diamonds"
             3 -> "spades"
             else -> "error"
-        }
+        }   // 클, 하, 다, 스
 
         val number = when (c % 13){
             in 0..8 -> (c % 13 + 2).toString()
@@ -66,17 +70,41 @@ class MainActivity : AppCompatActivity() {
             11 -> "king"
             12 -> "ace"
             else -> "error"
-        }
+        }   // 0~8: 2~10, 9~12: j/q/k/a
 
         val case = when (c % 13){
             in 0..8 -> ""
             in 9..11 -> "2"
             12 -> ""
             else -> "error"
-        }//j, q, k 검증용
+        }   // j, q, k 검증용
 
         if (c == -1) return "c_red_joker"
 
         return "c_${number}_of_${shape}${case}"
+    }
+
+    private fun setHandRankings() {
+        val numbers = model.cards.value!!.copyOf()
+        var num = -1
+
+        for (i in numbers) {
+            if (num < i % 13){
+                num = i % 13
+            }
+        }
+        Log.i("Top!", "$num")
+
+        val number = when (num){
+            in 0..8 -> (num + 2).toString()
+            9 -> "잭"
+            10 -> "퀸"
+            11 -> "킹"
+            12 -> "에이스"
+            else -> "에러"
+        }
+        Log.i("Top Name!", "$number")
+
+        main.txt1.text = "$number 탑"
     }
 }
