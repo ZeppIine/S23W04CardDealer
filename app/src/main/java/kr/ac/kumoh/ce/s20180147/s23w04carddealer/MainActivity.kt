@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.provider.ContactsContract.CommonDataKinds.Im
 import android.util.Log
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import kr.ac.kumoh.ce.s20180147.s23w04carddealer.databinding.ActivityMainBinding
@@ -15,7 +14,6 @@ import kotlin.random.Random
 class MainActivity : AppCompatActivity() {
     private lateinit var main: ActivityMainBinding
     private lateinit var iview: Array<ImageView?>
-    private lateinit var tview: TextView
     private lateinit var model: CardDealerViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,16 +82,27 @@ class MainActivity : AppCompatActivity() {
         return "c_${number}_of_${shape}${case}"
     }
 
-    private fun setHandRankings() {
+    private fun setHandRankings() {     // 족보 중 탑 카드 계산
         val numbers = model.cards.value!!.copyOf()
         var num = -1
+        var shap = -1
 
         for (i in numbers) {
             if (num < i % 13){
                 num = i % 13
+                shap = i / 13
             }
         }
-        Log.i("Top!", "$num")
+//        Log.i("Top!", "$num")
+
+
+        val shape = when (shap){
+            0 -> "클로버"
+            1 -> "하트"
+            2 -> "다이아"
+            3 -> "스페이드"
+            else -> "에러"
+        }   // 클, 하, 다, 스
 
         val number = when (num){
             in 0..8 -> (num + 2).toString()
@@ -102,9 +111,9 @@ class MainActivity : AppCompatActivity() {
             11 -> "킹"
             12 -> "에이스"
             else -> "에러"
-        }
-        Log.i("Top Name!", "$number")
+        }   // 0~8: 2~10, 9~12: j/q/k/a
+//        Log.i("Top Name!", "$number")
 
-        main.txt1.text = "$number 탑"
+        main.txt1.text = "$shape $number 탑"
     }
 }
