@@ -197,3 +197,8 @@ class MainActivity : AppCompatActivity() {
 }
 
 // MaiT's help
+// 변경 예정 알고리즘
+// 인자로 넘버를 받아온 후
+// if else문을 반복하여 판별 함
+// 플러시는 기존과 같이 판별 함수를 작성하여 판별
+// 탑카드는 기존과 같이 else시에 checkTopCard() 이용하여 판별
