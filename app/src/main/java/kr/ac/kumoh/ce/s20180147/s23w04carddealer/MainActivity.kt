@@ -24,12 +24,12 @@ class MainActivity : AppCompatActivity() {
 
         model.cards.observe(this, Observer {
             setCardNumber()
-            setHandRankings()
+            main.txt1.text = setHandRankings()
         })
 
         main.btn1.setOnClickListener{
             model.shuffle()
-            setHandRankings()
+            main.txt1.text = setHandRankings()
         }
     }
 
@@ -72,44 +72,48 @@ class MainActivity : AppCompatActivity() {
         return "c_${number}_of_${shape}${case}"
     }
 
-    private fun setHandRankings() {     // 족보 중 탑 카드 계산
-        when{
-            checkRoyalStraightFlush() -> main.txt1.text = "로얄 스트레이트 플러쉬"
-            checkBackStraightFlush() -> main.txt1.text = "백스트레이트 플러쉬"
-            checkStraightFlush() -> main.txt1.text = "스트레이트 플러쉬"
-            checkFourCards() -> main.txt1.text = "포 카드"
-            checkFullHouse() -> main.txt1.text = "풀 하우스"
-            checkFlush() -> main.txt1.text = "플러시"
-            checkMountain() -> main.txt1.text = "마운틴"
-            checkBackStraight() -> main.txt1.text = "백 스트레이트"
-            checkStraight() -> main.txt1.text = "스트레이트"
-            checkTriple() -> main.txt1.text = "트리플"
-            checkTwoPair() -> main.txt1.text = "투 페어"
-            checkOnePair() -> main.txt1.text = "원 페어"
-            else -> main.txt1.text = checkTopcard()
-        }
-    }
+    private fun setHandRankings(): String {     // 족보 계산
+        // 모양 판정
+        val shapes = model.cards.value!!.copyOf().map { it / 13 }.toList().sorted()
+        // 숫자 판정
+        val numbers = model.cards.value!!.copyOf().map { it % 13 }.toList().sorted()
 
-    private fun checkRoyalStraightFlush(): Boolean {
-        return checkMountain() && checkFlush()
-    }
-
-    private fun checkBackStraightFlush(): Boolean {
-        return checkFlush() && checkStraight()
-    }
-
-    private fun checkStraightFlush(): Boolean {
-        return checkStraight() && checkFlush()
-    }
-
-    private fun checkFullHouse(): Boolean {
-        if (checkTriple()) {
-            val numbers = model.cards.value!!.copyOf().map { it % 13 }.toList().sorted()
-            if (numbers.toSet().size == 2) {
-                return true
+        if(shapes.all { it == shapes[0] }){   // 플러쉬 족보
+            if(model.cards.value!!.copyOf().toList()[0] == -1){
+                return "포커 게임"
+            } else if(numbers == intArrayOf(8, 9, 10, 11, 12).toList()) {
+                return "로얄 스트레이트 플러쉬"
+            } else if(numbers == intArrayOf(0, 1, 2, 3, 12).toList()) {
+                return "백 스트레이트 플러쉬"
+            } else if(checkStraight()) {
+                return "스트레이트 플러쉬"
+            } else {
+                return "플러쉬"
             }
         }
-        return false
+        else{   // 플러쉬가 아닌 족보
+            if(checkFourCards()) {
+                return "포 카드"
+            } else if(checkTriple()) {
+                if (numbers.toSet().size == 2) {
+                    return "풀 하우스"
+                } else {
+                    return "트리플"
+                }
+            } else if(numbers == intArrayOf(8, 9, 10, 11, 12).toList()) {
+                return "마운틴"
+            } else if(numbers == intArrayOf(0, 1, 2, 3, 12).toList()) {
+                return "백 스트레이트"
+            } else if(checkStraight()) {
+                return "스트레이트"
+            } else if(numbers.toSet().size == 3) {
+                return "투 페어"
+            } else if(numbers.toSet().size == 4) {
+                return "원 페어"
+            } else {
+                return checkTopCard()
+            }
+        }
     }
 
     private fun checkStraight(): Boolean {
@@ -118,23 +122,6 @@ class MainActivity : AppCompatActivity() {
             if (numbers[i] + 1 != numbers[i + 1]) return false
         }
         return true
-    }
-
-    private fun checkMountain(): Boolean {
-        val numbers = model.cards.value!!.copyOf().map { it % 13 }.toList().sorted()
-        return numbers == intArrayOf(9, 10, 11, 12, 13).toList()
-    }
-
-    private fun checkFlush(): Boolean {
-        val numbers = model.cards.value!!.copyOf()
-        if (numbers[0] == -1) return false
-        numbers.map { it / 13 }.toList().sorted()
-        return numbers.all { it == numbers[0] }
-    }
-
-    private fun checkBackStraight(): Boolean {
-        val numbers = model.cards.value!!.copyOf().map { it % 13 }.toList().sorted()
-        return numbers == intArrayOf(0, 1, 2, 3, 13).toList()
     }
 
     private fun checkFourCards(): Boolean {
@@ -163,7 +150,7 @@ class MainActivity : AppCompatActivity() {
         return numbers.toSet().size == 4
     }
 
-    private fun checkTopcard(): String {
+    private fun checkTopCard(): String {
         val numbers = model.cards.value!!.copyOf()
         var num = -1
         var shap = -1
@@ -195,10 +182,3 @@ class MainActivity : AppCompatActivity() {
         return if (shape == number) "포커 게임" else "$shape $number 탑"
     }
 }
-
-// MaiT's help
-// 변경 예정 알고리즘
-// 인자로 넘버를 받아온 후
-// if else문을 반복하여 판별 함
-// 플러시는 기존과 같이 판별 함수를 작성하여 판별
-// 탑카드는 기존과 같이 else시에 checkTopCard() 이용하여 판별
