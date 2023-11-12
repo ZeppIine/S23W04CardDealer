@@ -140,16 +140,6 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
-    private fun checkTwoPair(): Boolean {
-        val numbers = model.cards.value!!.copyOf().map { it % 13 }.toList().sorted()
-        return numbers.toSet().size == 3
-    }
-
-    private fun checkOnePair(): Boolean {
-        val numbers = model.cards.value!!.copyOf().map { it % 13 }.toList().sorted()
-        return numbers.toSet().size == 4
-    }
-
     private fun checkTopCard(): String {
         val numbers = model.cards.value!!.copyOf()
         var num = -1
